@@ -265,10 +265,19 @@ tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
 .ptable tbody tr:hover td, .ptable tbody tr:hover th { background: var(--paper); }
 .ptable .pick { width: 34px; }
 .ptable tfoot td, .ptable tfoot th {
-  border-top: 2px solid var(--ink); border-bottom: 0; font-weight: 600;
-  background: var(--surface);
+  border-bottom: 0; font-weight: 600; background: var(--surface);
 }
 .ptable tfoot td.empty { color: var(--ink-soft); font-weight: 400; }
+.ptable .mark { color: var(--signal-tx); margin-inline-start: 2px; font-size: 11px; vertical-align: super; }
+.note .warn { color: var(--signal-tx); }
+.ptable tfoot tr:first-child td, .ptable tfoot tr:first-child th { border-top: 1px solid var(--rule); }
+.ptable tfoot tr.add td, .ptable tfoot tr.add th {
+  border-top: 0; font-weight: 400; color: var(--ink-soft);
+}
+.ptable tfoot tr.add .tag { font-weight: 400; margin-inline-start: 6px; }
+.ptable tfoot tr.sum td, .ptable tfoot tr.sum th {
+  border-top: 2px solid var(--ink); font-size: 15px;
+}
 .ptable tbody tr.on td, .ptable tbody tr.on th { background: color-mix(in srgb, var(--signal) 9%, var(--surface)); }
 .ptable td.qty, .ptable th.qty { text-align: center; width: 74px; }
 .ptable td.qty input {

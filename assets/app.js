@@ -257,7 +257,11 @@ const won = n => n.toLocaleString('ko-KR');
         const td = document.createElement('td');
         td.className = 'p' + (v == null ? ' na' : mark.includes(i) ? ' low' : '');
         td.textContent = v == null ? '—' : won(v);
-        if (mark.includes(i)) td.title = '무선 중에서는 여기가 가장 쌉니다';
+        const tip = [];
+        if (mark.includes(i)) tip.push('무선 중에서는 여기가 가장 쌉니다');
+        if (i === 2 && PASCO_MODEL[key])
+          tip.push(`${PASCO_MODEL[key][0]} · 학교장터 ${PASCO_MODEL[key][1]}`);
+        if (tip.length) td.title = tip.join(' / ');
         tr.appendChild(td);
       });
 
@@ -268,40 +272,66 @@ const won = n => n.toLocaleString('ko-KR');
   }
 
   function total() {
-    const n = N(), sums = [0, 0, 0, 0], lines = [];
+    const n = N(), sums = [0, 0, 0, 0], have = [0, 0, 0, 0], lines = [];
+    const missing = [[], [], [], []];
 
     PRICES.forEach(([key, name, ...p]) => {
       if (!picked.has(key)) return;
       const units = per[key] * n;
-      p.forEach((v, i) => { if (v != null) sums[i] += v * units; });
+      p.forEach((v, i) => {
+        if (v != null) { sums[i] += v * units; have[i]++; }
+        else missing[i].push(name);
+      });
       lines.push(`${name} <span class="num">${per[key]}</span>개 ×
         <span class="num">${n}</span>모둠 = <span class="num">${units}</span>개`);
     });
 
-    const boards = BOARD.main.price * n;
+    // 이지메이커 센서를 하나라도 담았을 때만 보드가 필요합니다
+    const boards = sums[0] > 0 ? BOARD.main.price * n : 0;
     foot.textContent = '';
 
     if (!lines.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="7" class="empty">왼쪽 칸을 체크하면
-        ${n}모둠 기준 업체별 합계가 여기에 나옵니다.</td>`;
-      foot.appendChild(tr);
+      foot.innerHTML = `<tr><td colspan="7" class="empty">왼쪽 칸을 체크하면
+        ${n}모둠 기준 업체별 합계가 여기에 나옵니다.</td></tr>`;
       calc.innerHTML = `<strong>모둠당 개수</strong>는 수업 26건에서 한 모둠이
         <em>동시에</em> 쓰는 개수의 최댓값을 넣어 두었습니다. 그 실험을 하지 않으시면 칸에서 줄이세요.
-        예를 들어 온도 센서가 5개인 것은 「수권의 층상 구조」가 한 번에 5개를 쓰기 때문입니다.`;
+        온도 센서가 5개인 것은 「수권의 층상 구조」가 한 번에 5개를 쓰기 때문입니다.`;
       return;
     }
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td></td><th scope="row" colspan="2">합계 · ${n}모둠</th>` +
-      sums.map((v, i) => `<td class="p">${won(i === 0 ? v + boards : v)}</td>`).join('');
-    foot.appendChild(tr);
+    /* 그 업체가 취급하지 않는 항목이 섞이면 합계를 그대로 견줄 수 없습니다.
+       하나도 취급하지 않으면 「—」, 일부만 취급하면 ✽ 를 붙입니다. */
+    const cells = (a, flag) => a.map((v, i) => {
+      if (v == null) return '<td class="p na">—</td>';
+      if (flag && have[i] === 0) return '<td class="p na">—</td>';
+      const part = flag && have[i] < lines.length;
+      return `<td class="p${part ? ' part' : ''}"${
+        part ? ` title="${missing[i].join(', ')} 미취급 — 나머지만 더한 값입니다"` : ''
+      }>${won(v)}${part ? '<span class="mark">✽</span>' : ''}</td>`;
+    }).join('');
 
-    calc.innerHTML = `<strong>이렇게 계산했습니다.</strong> ` + lines.join(' · ') +
-      `. 이지메이커 합계에는 모둠당 메인보드 <span class="num">${won(BOARD.main.price)}</span>원
-       (${n}모둠 <span class="num">${won(boards)}</span>원)을 더했습니다.
+    let html = `<tr><td></td><th scope="row" colspan="2">센서 합계 · ${n}모둠</th>` +
+               cells(sums, true) + '</tr>';
+    if (boards) {
+      html += `<tr class="add"><td></td><th scope="row" colspan="2">+ 메인보드 ${n}개
+        <span class="tag">이지메이커는 보드가 있어야 동작합니다</span></th>` +
+        cells([boards, null, null, null]) + '</tr>';
+    }
+    html += `<tr class="sum"><td></td><th scope="row" colspan="2">합계</th>` +
+            cells(sums.map((v, i) => i === 0 ? v + boards : v), true) + '</tr>';
+    foot.innerHTML = html;
+
+    const partial = have.map((h, i) => h > 0 && h < lines.length ? VENDORS[i].name : null).filter(Boolean);
+    const none = have.map((h, i) => h === 0 ? VENDORS[i].name : null).filter(Boolean);
+
+    calc.innerHTML = `<strong>이렇게 셌습니다.</strong> ` + lines.join(' · ') +
+      (boards ? `. 이지메이커는 모둠마다 메인보드 <span class="num">${won(BOARD.main.price)}</span>원짜리가
+       1개씩 있어야 해서 ${n}개를 더했습니다.
        무선(나노)으로 쓰시려면 센서 1개마다 나노보드 <span class="num">${won(BOARD.nano.price)}</span>원과
-       배터리 <span class="num">${won(BOARD.battery.price)}</span>원이 추가로 붙습니다.`;
+       배터리 <span class="num">${won(BOARD.battery.price)}</span>원이 대신 붙습니다.` : '.') +
+      (partial.length ? ` <strong class="warn">✽ ${partial.join('·')}</strong>는 고르신 센서 중 일부를
+        취급하지 않아, 취급하는 것만 더한 값입니다. 다른 업체와 그대로 견주시면 안 됩니다.` : '') +
+      (none.length ? ` <strong class="warn">${none.join('·')}</strong>는 고르신 센서를 하나도 취급하지 않습니다.` : '');
   }
 
   $('#groups').addEventListener('input', () => {
