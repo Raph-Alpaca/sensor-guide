@@ -208,10 +208,11 @@ input:focus-visible, [tabindex]:focus-visible {
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 caption { text-align: left; font-size: 13px; color: var(--ink-soft); padding: 12px 14px 0; }
 th, td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--grid); vertical-align: top; }
+/* 머리글은 고정하지 않습니다. .tablewrap 이 스크롤 상자라
+   sticky 가 화면이 아니라 표 안쪽을 기준으로 잡혀 첫 줄을 덮었습니다. */
 thead th {
   font-size: 12.5px; font-weight: 600; color: var(--ink); white-space: nowrap;
   border-bottom: 1px solid var(--rule); background: var(--surface);
-  position: sticky; top: 52px; z-index: 2;
 }
 tbody th { font-weight: 500; color: var(--ink-soft); font-size: 13px; white-space: nowrap; }
 tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
@@ -329,7 +330,6 @@ footer strong { color: var(--ink); font-weight: 600; }
 @media (max-width: 860px) {
   .hero__grid { grid-template-columns: 1fr; }
   .picker__row { grid-template-columns: 1fr; gap: 9px; align-items: start; }
-  thead th { position: static; }
   .lesson { grid-template-columns: 46px minmax(0,1fr); }
   .lesson__links { grid-column: 2; text-align: left; }
 }
@@ -349,5 +349,4 @@ footer strong { color: var(--ink); font-weight: 600; }
   .vdetail { break-inside: avoid; }
   a { text-decoration: none; }
   .linkgrp a::after { content: " (" attr(href) ")"; font-size: 8pt; color: #555; word-break: break-all; }
-  thead th { position: static; }
 }
