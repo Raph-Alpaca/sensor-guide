@@ -10,11 +10,11 @@
 <meta property="og:title" content="센서 선택 가이드 — 찾아가는 디지털 과학 연수">
 <meta property="og:description" content="업체 네 곳의 가격과 쓰임을 한 화면에서. 중학교 과학 교사용.">
 <meta property="og:locale" content="ko_KR">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F6F7F4'/%3E%3Cpath d='M4 26 L12 18 L18 21 L28 7' stroke='%230B6E4F' stroke-width='2.5' fill='none'/%3E%3Ccircle cx='28' cy='7' r='3' fill='%23E08A00'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F6F7F4'/%3E%3Cpath d='M4 26 L12 18 L18 21 L28 7' stroke='%230E8F5E' stroke-width='2.5' fill='none'/%3E%3Ccircle cx='28' cy='7' r='3' fill='%23E08A00'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=1">
+<link rel="stylesheet" href="assets/app.css?v=2">
 </head>
 <body>
 
@@ -48,55 +48,14 @@
       </div>
     </div>
 
-    <!-- 보일의 법칙 계측기 -->
-    <div class="rig graphpaper" id="rig">
-      <div class="rig__head">
-        <span class="rig__title">보일의 법칙 — 피스톤을 움직여 보세요</span>
-        <span class="rig__hint">밀면 부피가 줄고 압력이 오릅니다</span>
-      </div>
-
-      <svg class="rig__plot" viewBox="0 0 440 240" role="img"
-           aria-labelledby="plotTitle plotDesc">
-        <title id="plotTitle">기체의 압력과 부피 그래프</title>
-        <desc id="plotDesc">피스톤을 움직이면 부피에 따른 압력이 점으로 기록됩니다. 현재 값은 아래 숫자로도 읽을 수 있습니다.</desc>
-        <g id="axes" fill="none" stroke="currentColor" stroke-width="1" opacity=".45">
-          <path d="M46 14 V206 H424"/>
-        </g>
-        <g id="ticks" font-size="10" fill="currentColor" opacity=".55"></g>
-        <text id="xlab" x="235" y="232" font-size="11" text-anchor="middle" fill="currentColor" opacity=".7">부피 V (mL)</text>
-        <text id="ylab" x="14" y="110" font-size="11" text-anchor="middle" fill="currentColor" opacity=".7"
-              transform="rotate(-90 14 110)">압력 P (kPa)</text>
-        <polyline id="trace" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-        <circle id="dot" r="5" fill="#E08A00"></circle>
-      </svg>
-
-      <div class="plunger">
-        <label class="sr" for="vol">피스톤 위치 — 기체의 부피</label>
-        <input type="range" id="vol" min="10" max="50" step="0.5" value="30">
-        <div class="plunger__scale"><span>10 mL</span><span>50 mL</span></div>
-      </div>
-
-      <div class="rig__readout">
-        <div>
-          <span class="ro__label">부피 V</span>
-          <span class="ro__value" id="vOut">30.0</span><span class="ro__unit">mL</span>
-        </div>
-        <div class="ro--signal">
-          <span class="ro__label">압력 P</span>
-          <span class="ro__value" id="pOut">101</span><span class="ro__unit">kPa</span>
-        </div>
-        <div>
-          <span class="ro__label">P × V</span>
-          <span class="ro__value" id="kOut">3039</span>
-        </div>
-        <div style="margin-inline-start:auto">
-          <span class="ro__label">가로축</span>
-          <button class="btn btn--ghost" id="axisBtn" style="padding:6px 11px;font-size:12.5px"
-                  aria-pressed="false">V로 보기</button>
-        </div>
-      </div>
-      <p class="rig__foot">압력계가 없으면 이 그래프를 그릴 수 없습니다. 센서를 처음 들이는 학교에 가장 설득력 있는 실험입니다.
-        가로축을 <span class="num">1/V</span>로 바꾸면 곡선이 직선이 됩니다.</p>
+    <!-- 업체별 센서 단가 범위 -->
+    <div class="span">
+      <p class="span__cap">같은 센서인데 단가가 이만큼 다릅니다</p>
+      <p class="span__sub">중학교에서 쓰는 센서 24종 기준 · 최저가부터 최고가까지</p>
+      <div class="span__rows" id="spanRows"></div>
+      <div class="span__scale" aria-hidden="true"><span>0</span><span>50만</span><span>100만</span></div>
+      <p class="span__foot">이지메이커는 여기에 모둠당 메인보드 6만원이 따로 듭니다.
+        그래도 전 모둠에 돌릴 수 있는 가격대는 여기뿐입니다.</p>
     </div>
   </div>
 </section>
@@ -171,6 +130,12 @@
     </div>
 
     <div id="vendorDetails"></div>
+
+    <p class="note"><strong>네 업체 모두 브라우저에서 바로 측정할 수 있습니다.</strong>
+      <a href="https://sensor-lab.netlify.app/" target="_blank" rel="noopener">무선 센서 실험실</a>에서
+      쓰시는 업체를 고르면 센서를 연결해 실시간 그래프를 보고 지능형 과학실 ON으로 보낼 수 있습니다.
+      전용 프로그램 설치가 막힌 학교에서 특히 쓸모가 있습니다.
+      데스크톱 크롬 또는 엣지가 필요하고, 블루투스 연결은 화면의 버튼을 눌러 시작해야 합니다.</p>
   </div>
 </section>
 
@@ -273,9 +238,9 @@
   </div>
 </footer>
 
-<script src="assets/lessons.js?v=1"></script>
-<script src="assets/prices.js?v=1"></script>
-<script src="assets/content.js?v=1"></script>
-<script src="assets/app.js?v=1"></script>
+<script src="assets/lessons.js?v=2"></script>
+<script src="assets/prices.js?v=2"></script>
+<script src="assets/content.js?v=2"></script>
+<script src="assets/app.js?v=2"></script>
 </body>
 </html>

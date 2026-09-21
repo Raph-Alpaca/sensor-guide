@@ -98,8 +98,8 @@ const LINK_GROUPS = [
   {
     title: '수업에 쓰는 도구',
     items: [
-      ['센서 실험실', 'https://sensor-lab.netlify.app/',
-       '온도·압력·힘 센서 수업용 도구 — 거원중 조승호'],
+      ['무선 센서 실험실', 'https://sensor-lab.netlify.app/',
+       '네 업체 무선 센서를 브라우저에서 바로 연결해 측정하고 지능형 과학실 ON으로 전송 — 거원중 조승호'],
       ['MBL 수업허브', 'https://scienceisjo.github.io/mblclasshub/',
        '모둠 데이터를 한 화면에 모아 비교. 참여코드 6자리로 입장 — 해누리중 조승재'],
       ['MBL 센서 연수 허브', 'https://scienceisjo.github.io/growing-teachers/sensor-hub/',

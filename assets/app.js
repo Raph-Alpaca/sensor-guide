@@ -6,60 +6,36 @@ const $  = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const won = n => n.toLocaleString('ko-KR');
 
-/* ══ 1. 보일의 법칙 계측기 ═══════════════════════════════ */
+/* ══ 1. 히어로 — 업체별 센서 단가 범위 ══════════════════ */
 (() => {
-  const svg = $('.rig__plot'); if (!svg) return;
-  const K = 101.3 * 30;                       // P·V = 일정 (V=30 mL 에서 대기압)
-  const L = 46, R = 424, T = 14, B = 206;     // 그래프 영역
-  const PMAX = 320;
-  const range = $('#vol'), trace = $('#trace'), dot = $('#dot'),
-        ticks = $('#ticks'), xlab = $('#xlab'), btn = $('#axisBtn');
-  let byInvV = false;
+  const host = document.getElementById('spanRows'); if (!host) return;
+  const MAX = 1000000;                       // 가로축 상한 100만원
+  const man = n => (n / 10000).toFixed(1).replace(/\.0$/, '') + '만';
 
-  const P  = v => K / v;
-  const xOf = v => { const t = byInvV ? (1/v - 1/50) / (1/10 - 1/50) : (v - 10) / 40;
-                     return L + t * (R - L); };
-  const yOf = p => B - Math.min(p, PMAX) / PMAX * (B - T);
+  VENDORS.forEach((v, i) => {
+    const vals = PRICES.map(r => r[2 + i]).filter(x => x != null);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
 
-  function axes() {
-    ticks.textContent = '';
-    const add = (x, y, s, anchor) => {
-      const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      t.setAttribute('x', x); t.setAttribute('y', y);
-      t.setAttribute('text-anchor', anchor || 'middle');
-      t.textContent = s; ticks.appendChild(t);
-    };
-    [0, 80, 160, 240, 320].forEach(p => add(L - 7, yOf(p) + 3.5, p, 'end'));
-    (byInvV ? [50, 25, 16.7, 12.5, 10] : [10, 20, 30, 40, 50])
-      .forEach(v => add(xOf(v), B + 15, byInvV ? (1/v).toFixed(2) : v));
-    xlab.textContent = byInvV ? '1/V  (1/mL)' : '부피 V (mL)';
-  }
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'span__row';
+    row.title = `${v.name} — 중학교에서 쓰는 센서 ${vals.length}종 취급`;
+    row.setAttribute('aria-label',
+      `${v.name}, 센서 ${vals.length}종, 단가 ${won(lo)}원부터 ${won(hi)}원까지. 가격표로 이동`);
+    row.addEventListener('click', () =>
+      document.getElementById('prices').scrollIntoView({ block: 'start' }));
 
-  function draw(v) {
-    let d = '';
-    for (let i = 0; i <= 80; i++) {
-      const vv = 10 + 40 * i / 80;
-      d += `${xOf(vv).toFixed(1)},${yOf(P(vv)).toFixed(1)} `;
-    }
-    trace.setAttribute('points', d.trim());
-    trace.setAttribute('stroke', 'var(--pen-pasco)');
-    dot.setAttribute('cx', xOf(v)); dot.setAttribute('cy', yOf(P(v)));
-    dot.setAttribute('fill', 'var(--signal)');
-    $('#vOut').textContent = v.toFixed(1);
-    $('#pOut').textContent = Math.round(P(v));
-    $('#kOut').textContent = Math.round(P(v) * v);
-  }
-
-  axes(); draw(30);
-  range.addEventListener('input', () => draw(+range.value));
-
-  btn.addEventListener('click', () => {
-    byInvV = !byInvV;
-    btn.setAttribute('aria-pressed', String(byInvV));
-    btn.textContent = byInvV ? 'V로 보기' : '1/V로 보기';
-    axes(); draw(+range.value);
+    row.innerHTML = `
+      <span class="span__name vend vend--${v.key}">${v.name}</span>
+      <span class="span__track">
+        <span class="span__bar" style="
+          inset-inline-start:${(lo / MAX * 100).toFixed(2)}%;
+          inline-size:${((hi - lo) / MAX * 100).toFixed(2)}%;
+          background:${v.pen}"></span>
+      </span>
+      <span class="span__val">${man(lo)}~${man(hi)}</span>`;
+    host.appendChild(row);
   });
-  btn.textContent = '1/V로 보기';
 })();
 
 /* ══ 2. 30초 선택 ════════════════════════════════════════ */
