@@ -3,27 +3,18 @@
 중학교 과학 교사 연수용 안내 자료입니다. 업체 네 곳(이지메이커·사이언스큐브·파스코·버니어)의
 센서 가격과 장단점을 비교하고, 우리 학교 모둠 수 기준 금액과 단원별 필요 센서를 확인할 수 있습니다.
 
+**공개 주소 — https://raph-alpaca.github.io/sensor-guide/**
+
 재구성·검증 — 거원중학교 조승호
 원자료 — 해누리중학교 조승재, 『중학교 과학 센서 구매 가이드』 (CC BY-NC 4.0)
 
-## GitHub Pages로 올리기
+## 고친 내용을 반영하려면
 
-1. GitHub에서 새 저장소를 만듭니다. 이름은 자유롭게 정하시면 됩니다(예: `sensor-guide`).
-2. 이 폴더에서 아래를 실행합니다.
-
-```bash
-git init && git add . && git commit -m "센서 선택 가이드 첫 배포"
-```
-
-3. 원격 저장소를 연결하고 올립니다. `<사용자명>`과 `<저장소>`를 바꿔 주세요.
+이미 GitHub Pages로 배포되어 있습니다. 내용을 고치신 뒤 아래를 실행하면 1~2분 안에 반영됩니다.
 
 ```bash
-git remote add origin https://github.com/<사용자명>/<저장소>.git && git branch -M main && git push -u origin main
+git add -A && git commit -m "가격 갱신" && git push
 ```
-
-4. 저장소의 **Settings → Pages**에서 Source를 `Deploy from a branch`,
-   Branch를 `main` / `/ (root)`로 두고 저장합니다.
-5. 1~2분 뒤 `https://<사용자명>.github.io/<저장소>/` 로 열립니다.
 
 ## 파일 구성
 
