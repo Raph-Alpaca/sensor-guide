@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=5">
+<link rel="stylesheet" href="assets/app.css?v=6">
 </head>
 <body>
 
@@ -56,7 +56,7 @@
     <!-- 업체별 센서 단가 범위 -->
     <div class="span">
       <p class="span__cap">같은 센서인데 단가가 이만큼 다릅니다</p>
-      <p class="span__sub">중학교에서 쓰는 센서 24종 기준 · 최저가부터 최고가까지</p>
+      <p class="span__sub">중학교에서 쓰는 센서 <span id="sensorCount" class="num">22</span>종 기준 · 최저가부터 최고가까지</p>
       <div class="span__rows" id="spanRows"></div>
       <div class="span__scale" aria-hidden="true"><span>0</span><span>50만</span><span>100만</span></div>
       <p class="span__foot">이지메이커는 여기에 모둠당 메인보드 6만원이 따로 듭니다.
@@ -185,9 +185,8 @@
     </div>
 
     <p class="note" id="calcNote"></p>
-    <p class="note"><strong>어디가 싼가.</strong> 이지메이커 유선은 취급하는 17개 항목 <em>전부</em>에서 가장 쌉니다.
-      무선끼리 견주면 사이언스큐브가 20개 항목 중 18개에서 가장 싸고,
-      심박과 용존산소 두 항목만 파스코가 더 쌉니다(주황색). 「—」는 그 업체가 단독 제품으로 취급하지 않는 항목입니다.
+    <p class="note"><strong>어디가 싼가.</strong> <span id="cheapNote"></span>
+      「—」는 그 업체가 단독 제품으로 취급하지 않는 항목입니다.
       파스코 칸에 마우스를 올리면 모델번호와 학교장터 물품번호가 나옵니다.
       사이언스큐브 유선(MBL)은 인터페이스(Free Linker2 · <span class="num">495,000</span>원)를 따로 사야 해서 같은 기준으로 비교할 수 없어 표에서 뺐습니다.
       기존에 인터페이스가 있는 학교라면 유선이 유리할 수 있으니 견적을 따로 받아 보세요.</p>
@@ -247,9 +246,9 @@
   </div>
 </footer>
 
-<script src="assets/lessons.js?v=5"></script>
-<script src="assets/prices.js?v=5"></script>
-<script src="assets/content.js?v=5"></script>
-<script src="assets/app.js?v=5"></script>
+<script src="assets/lessons.js?v=6"></script>
+<script src="assets/prices.js?v=6"></script>
+<script src="assets/content.js?v=6"></script>
+<script src="assets/app.js?v=6"></script>
 </body>
 </html>

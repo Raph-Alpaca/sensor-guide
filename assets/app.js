@@ -12,6 +12,9 @@ const won = n => n.toLocaleString('ko-KR');
   const MAX = 1000000;                       // 가로축 상한 100만원
   const man = n => (n / 10000).toFixed(1).replace(/\.0$/, '') + '만';
 
+  const cnt = document.getElementById('sensorCount');
+  if (cnt) cnt.textContent = PRICES.length;
+
   VENDORS.forEach((v, i) => {
     const vals = PRICES.map(r => r[2 + i]).filter(x => x != null);
     const lo = Math.min(...vals), hi = Math.max(...vals);
@@ -341,6 +344,44 @@ const won = n => n.toLocaleString('ko-KR');
   $('#q').addEventListener('input', render);
   $('#coreOnly').addEventListener('change', render);
   $('#clearPick').addEventListener('click', () => { picked.clear(); render(); });
+
+  /* 「어디가 싼가」 문장은 가격 데이터에서 직접 세어 씁니다.
+     가격을 고치면 문장의 숫자도 같이 바뀌므로 따로 손볼 일이 없습니다. */
+  (() => {
+    const box = $('#cheapNote'); if (!box) return;
+
+    /* 받침이 있으면 은/과, 없으면 는/와 */
+    const bat = w => { const c = w.charCodeAt(w.length - 1);
+      return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0; };
+    const topic = w => w + (bat(w) ? '은' : '는');
+    const listUp = a => a.reduce((acc, w, i) =>
+      i === 0 ? w : acc + (bat(acc.slice(-1)) ? '과 ' : '와 ') + w, '');
+
+    const minOf = (r, cols) => Math.min(...cols.filter(i => r[i] != null).map(i => r[i]));
+    const plain = n => n.replace(/\s*\(.*\)/, '');
+
+    const ezRows = PRICES.filter(r => r[2] != null);
+    const ezLow  = ezRows.filter(r => r[2] === minOf(r, [2, 3, 4, 5])).length;
+
+    const wRows = PRICES.filter(r => [3, 4, 5].filter(i => r[i] != null).length > 1);
+    const byVendor = {};
+    let cubeLow = 0;
+    wRows.forEach(r => {
+      const m = minOf(r, [3, 4, 5]);
+      if (r[3] === m) { cubeLow++; return; }
+      const name = VENDORS[[3, 4, 5].find(i => r[i] === m) - 2].name;
+      (byVendor[name] = byVendor[name] || []).push(plain(r[1]));
+    });
+    const exc = Object.entries(byVendor)
+      .map(([v, names]) => `${topic(listUp(names))} ${v}가`);
+
+    box.innerHTML =
+      `이지메이커 유선은 취급하는 <span class="num">${ezRows.length}</span>개 항목 ` +
+      (ezLow === ezRows.length ? '<em>전부</em>에서' : `중 <span class="num">${ezLow}</span>개에서`) +
+      ' 가장 쌉니다. 무선끼리 견주면 사이언스큐브가 ' +
+      `<span class="num">${wRows.length}</span>개 항목 중 <span class="num">${cubeLow}</span>개에서 가장 싸고, ` +
+      (exc.length ? `${exc.join(', ')} 더 쌉니다(주황색).` : '예외가 없습니다.');
+  })();
 
   $('#groupsOut').textContent = $('#groups').value + '모둠';
   render();
