@@ -14,20 +14,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=2">
+<link rel="stylesheet" href="assets/app.css?v=3">
 </head>
 <body>
 
 <header class="topbar">
   <div class="wrap topbar__in">
     <span class="topbar__mark">센서 선택 가이드</span>
-    <nav aria-label="문서 차례">
-      <a href="#pick">고르기</a>
-      <a href="#vendors">업체</a>
-      <a href="#prices">가격</a>
-      <a href="#lessons">수업</a>
-      <a href="#links">사이트</a>
-    </nav>
+    <div class="tabs" role="tablist" aria-label="문서 차례">
+      <button type="button" role="tab" id="tab-pick" aria-controls="pick"
+              aria-selected="true" tabindex="0">고르기</button>
+      <button type="button" role="tab" id="tab-vendors" aria-controls="vendors"
+              aria-selected="false" tabindex="-1">업체</button>
+      <button type="button" role="tab" id="tab-prices" aria-controls="prices"
+              aria-selected="false" tabindex="-1">가격</button>
+      <button type="button" role="tab" id="tab-lessons" aria-controls="lessons"
+              aria-selected="false" tabindex="-1">수업</button>
+      <button type="button" role="tab" id="tab-links" aria-controls="links"
+              aria-selected="false" tabindex="-1">사이트</button>
+    </div>
   </div>
 </header>
 
@@ -43,8 +48,8 @@
         <strong>모둠 수를 넣으면 우리 학교 기준 금액</strong>이 바로 나오고,
         단원을 고르면 그 실험에 필요한 센서와 매뉴얼 위치가 나옵니다.</p>
       <div class="hero__cta">
-        <a class="btn" href="#pick">30초 만에 고르기</a>
-        <a class="btn btn--ghost" href="#prices">가격표 바로 보기</a>
+        <button class="btn" type="button" data-tab="pick">30초 만에 고르기</button>
+        <button class="btn btn--ghost" type="button" data-tab="prices">가격표 바로 보기</button>
       </div>
     </div>
 
@@ -61,7 +66,7 @@
 </section>
 
 <!-- ══ 1. 30초 선택 ════════════════════════════════════ -->
-<section class="sec" id="pick">
+<section class="sec" id="pick" role="tabpanel" aria-labelledby="tab-pick">
   <div class="wrap">
     <div class="sec__head">
       <span class="sec__n">01</span>
@@ -113,7 +118,7 @@
 </section>
 
 <!-- ══ 2. 업체 ═════════════════════════════════════════ -->
-<section class="sec" id="vendors">
+<section class="sec" id="vendors" role="tabpanel" aria-labelledby="tab-vendors" hidden>
   <div class="wrap">
     <div class="sec__head">
       <span class="sec__n">02</span>
@@ -140,7 +145,7 @@
 </section>
 
 <!-- ══ 3. 가격 ═════════════════════════════════════════ -->
-<section class="sec" id="prices">
+<section class="sec" id="prices" role="tabpanel" aria-labelledby="tab-prices" hidden>
   <div class="wrap">
     <div class="sec__head">
       <span class="sec__n">03</span>
@@ -168,6 +173,7 @@
         <thead><tr>
           <th scope="col" class="pick"><span class="sr">담기</span></th>
           <th scope="col">센서</th>
+          <th scope="col" class="qty">모둠당<br><small style="font-weight:400;color:var(--ink-soft)">동시 사용</small></th>
           <th scope="col" style="text-align:right">이지메이커<br><small style="font-weight:400;color:var(--ink-soft)">유선 · 보드 별도</small></th>
           <th scope="col" style="text-align:right">사이언스큐브<br><small style="font-weight:400;color:var(--ink-soft)">무선</small></th>
           <th scope="col" style="text-align:right">파스코<br><small style="font-weight:400;color:var(--ink-soft)">무선</small></th>
@@ -178,7 +184,7 @@
       </table>
     </div>
 
-    <p class="note" id="boardNote"></p>
+    <p class="note" id="calcNote"></p>
     <p class="note">주황색 표시는 그 항목의 최저가입니다. 「—」는 그 업체가 단독 제품으로 취급하지 않는 항목입니다.
       사이언스큐브 유선(MBL)은 인터페이스(Free Linker2 · <span class="num">495,000</span>원)를 따로 사야 해서 같은 기준으로 비교할 수 없어 표에서 뺐습니다.
       기존에 인터페이스가 있는 학교라면 유선이 유리할 수 있으니 견적을 따로 받아 보세요.</p>
@@ -186,7 +192,7 @@
 </section>
 
 <!-- ══ 4. 수업 ═════════════════════════════════════════ -->
-<section class="sec" id="lessons">
+<section class="sec" id="lessons" role="tabpanel" aria-labelledby="tab-lessons" hidden>
   <div class="wrap">
     <div class="sec__head">
       <span class="sec__n">04</span>
@@ -211,7 +217,7 @@
 </section>
 
 <!-- ══ 5. 사이트 ═══════════════════════════════════════ -->
-<section class="sec" id="links">
+<section class="sec" id="links" role="tabpanel" aria-labelledby="tab-links" hidden>
   <div class="wrap">
     <div class="sec__head">
       <span class="sec__n">05</span>
@@ -238,9 +244,9 @@
   </div>
 </footer>
 
-<script src="assets/lessons.js?v=2"></script>
-<script src="assets/prices.js?v=2"></script>
-<script src="assets/content.js?v=2"></script>
-<script src="assets/app.js?v=2"></script>
+<script src="assets/lessons.js?v=3"></script>
+<script src="assets/prices.js?v=3"></script>
+<script src="assets/content.js?v=3"></script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ git add -A && git commit -m "가격 갱신" && git push
 | `assets/prices.js` | **센서 가격과 보드 가격.** 값이 바뀌면 여기만 고치세요 |
 | `assets/lessons.js` | 수업 26건과 성취기준 본문 |
 | `assets/content.js` | 업체별 장단점, 연계 사이트 링크 |
-| `assets/app.js` | 계산과 화면 동작 |
+| `assets/app.js` | 탭 전환, 계산, 화면 동작 |
 | `research/` | 검증 기록 원본. 페이지에는 안 나옵니다 |
 
 ## 내용을 고칠 때
@@ -39,6 +39,24 @@ git add -A && git commit -m "가격 갱신" && git push
 ```
 
 확인일도 `index.html` 꼬리말에서 함께 바꿔 주시면 됩니다.
+
+## 탭으로 바로 여는 주소
+
+주소 끝에 조각을 붙이면 그 탭이 바로 열립니다. 연수 자료에 링크를 걸 때 쓰세요.
+
+| 탭 | 주소 |
+|---|---|
+| 고르기 | `…/sensor-guide/#pick` |
+| 업체 | `…/sensor-guide/#vendors` |
+| 가격 | `…/sensor-guide/#prices` |
+| 수업 | `…/sensor-guide/#lessons` |
+| 사이트 | `…/sensor-guide/#links` |
+
+## 센서 차례를 바꾸려면
+
+`assets/prices.js` 의 `PRICES` 배열 순서가 곧 표의 차례입니다.
+지금은 수업에 많이 나오는 순(온도 → 기체압력 → 힘 → 이산화탄소 …)이고,
+수업 건수가 비슷하면 「센서가 없으면 아예 못 하는 실험」을 앞에 두었습니다.
 
 ## 라이선스
 

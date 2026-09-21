@@ -189,31 +189,32 @@ const won = n => n.toLocaleString('ko-KR');
 /* ══ 4. 가격표 ═══════════════════════════════════════════ */
 (() => {
   const body = $('#priceBody'); if (!body) return;
-  const foot = $('#priceFoot');
+  const foot = $('#priceFoot'), calc = $('#calcNote');
   const picked = new Set();
 
-  // 모둠당 필요 개수 = 수업 26건에서 "동시에 쓰는 개수"의 최댓값
-  const qty = {};
+  /* 모둠당 개수의 처음 값 = 수업 26건에서 "동시에 쓰는 개수"의 최댓값.
+     선생님이 칸에서 직접 바꾸실 수 있습니다. */
+  const per = {}, used = {};
   LESSONS.forEach(l => Object.entries(l.sensors).forEach(([k, n]) => {
-    qty[k] = Math.max(qty[k] || 1, n);
+    per[k] = Math.max(per[k] || 1, n);
+    used[k] = (used[k] || 0) + 1;
   }));
+  PRICES.forEach(([k]) => { if (!per[k]) per[k] = 1; });
+
+  const N = () => +$('#groups').value;
 
   function rows() {
     const q = $('#q').value.trim();
     const coreOnly = $('#coreOnly').checked;
     return PRICES.filter(r =>
-      (!coreOnly || CORE_KEYS.includes(r[0])) &&
-      (!q || r[1].includes(q))
-    );
+      (!coreOnly || CORE_KEYS.includes(r[0])) && (!q || r[1].includes(q)));
   }
 
   function render() {
-    const N = +$('#groups').value;
     body.textContent = '';
 
     rows().forEach(([key, name, ...p]) => {
       const min = Math.min(...p.filter(x => x != null));
-      const per = qty[key] || 1;
       const tr = document.createElement('tr');
 
       const tdPick = document.createElement('td');
@@ -223,66 +224,84 @@ const won = n => n.toLocaleString('ko-KR');
       cb.setAttribute('aria-label', `${name} 담기`);
       cb.addEventListener('change', () => {
         cb.checked ? picked.add(key) : picked.delete(key);
+        tr.classList.toggle('on', cb.checked);
         total();
       });
-      tdPick.appendChild(cb); tr.appendChild(tdPick);
+      tdPick.appendChild(cb);
+      tr.appendChild(tdPick);
 
       const th = document.createElement('th');
       th.scope = 'row';
-      th.innerHTML = name + (per > 1
-        ? ` <span class="tag" title="한 모둠이 동시에 쓰는 개수">모둠당 ${per}개</span>` : '');
+      th.innerHTML = name + (used[key]
+        ? ` <span class="tag">수업 ${used[key]}건</span>` : '');
       tr.appendChild(th);
+
+      const tdQty = document.createElement('td');
+      tdQty.className = 'qty';
+      const num = document.createElement('input');
+      num.type = 'number'; num.min = '1'; num.max = '20'; num.step = '1';
+      num.value = per[key];
+      num.setAttribute('aria-label', `${name} 모둠당 개수`);
+      num.addEventListener('input', () => {
+        const v = Math.min(20, Math.max(1, +num.value || 1));
+        per[key] = v; total();
+      });
+      tdQty.appendChild(num);
+      tr.appendChild(tdQty);
 
       p.forEach(v => {
         const td = document.createElement('td');
         td.className = 'p' + (v == null ? ' na' : v === min ? ' low' : '');
         td.textContent = v == null ? '—' : won(v);
-        if (v != null) td.title = `${N}모둠이면 ${won(v * per * N)}원 (${per * N}개)`;
         tr.appendChild(td);
       });
+
+      if (picked.has(key)) tr.classList.add('on');
       body.appendChild(tr);
     });
     total();
   }
 
   function total() {
-    const N = +$('#groups').value;
-    const sums = [0, 0, 0, 0];
-    let any = false;
-    PRICES.forEach(([key, , ...p]) => {
+    const n = N(), sums = [0, 0, 0, 0], lines = [];
+
+    PRICES.forEach(([key, name, ...p]) => {
       if (!picked.has(key)) return;
-      any = true;
-      const per = qty[key] || 1;
-      p.forEach((v, i) => { if (v != null) sums[i] += v * per * N; });
+      const units = per[key] * n;
+      p.forEach((v, i) => { if (v != null) sums[i] += v * units; });
+      lines.push(`${name} <span class="num">${per[key]}</span>개 ×
+        <span class="num">${n}</span>모둠 = <span class="num">${units}</span>개`);
     });
 
-    const boards = BOARD.main.price * N;
+    const boards = BOARD.main.price * n;
     foot.textContent = '';
-    if (!any) {
-      foot.innerHTML = `<tr><td colspan="6" style="color:var(--ink-soft);font-weight:400">
-        왼쪽 칸을 체크하면 ${N}모둠 기준 업체별 합계가 여기에 나옵니다.</td></tr>`;
-      $('#boardNote').innerHTML = `이지메이커로 가실 때는 모둠마다 메인보드
-        <span class="num">${won(BOARD.main.price)}</span>원이 따로 필요합니다
-        (${N}모둠 <span class="num">${won(boards)}</span>원). ${BOARD.main.desc}`;
+
+    if (!lines.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="7" class="empty">왼쪽 칸을 체크하면
+        ${n}모둠 기준 업체별 합계가 여기에 나옵니다.</td>`;
+      foot.appendChild(tr);
+      calc.innerHTML = `<strong>모둠당 개수</strong>는 수업 26건에서 한 모둠이
+        <em>동시에</em> 쓰는 개수의 최댓값을 넣어 두었습니다. 그 실험을 하지 않으시면 칸에서 줄이세요.
+        예를 들어 온도 센서가 5개인 것은 「수권의 층상 구조」가 한 번에 5개를 쓰기 때문입니다.`;
       return;
     }
 
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td></td><th scope="row">선택한 센서 합계 · ${N}모둠</th>` +
-      sums.map((s, i) => `<td class="p">${won(i === 0 ? s + boards : s)}</td>`).join('');
+    tr.innerHTML = `<td></td><th scope="row" colspan="2">합계 · ${n}모둠</th>` +
+      sums.map((v, i) => `<td class="p">${won(i === 0 ? v + boards : v)}</td>`).join('');
     foot.appendChild(tr);
 
-    $('#boardNote').innerHTML = `합계는 <strong>모둠당 동시 사용 개수 × ${N}모둠</strong>으로 계산했습니다.
-      이지메이커 합계에는 모둠당 메인보드
-      <span class="num">${won(BOARD.main.price)}</span>원
-      (${N}모둠 <span class="num">${won(boards)}</span>원)을 포함했습니다.
-      무선(나노)으로 쓰시려면 센서 1개마다 나노보드 <span class="num">${won(BOARD.nano.price)}</span>원과
-      배터리 <span class="num">${won(BOARD.battery.price)}</span>원이 추가로 필요합니다.`;
+    calc.innerHTML = `<strong>이렇게 계산했습니다.</strong> ` + lines.join(' · ') +
+      `. 이지메이커 합계에는 모둠당 메인보드 <span class="num">${won(BOARD.main.price)}</span>원
+       (${n}모둠 <span class="num">${won(boards)}</span>원)을 더했습니다.
+       무선(나노)으로 쓰시려면 센서 1개마다 나노보드 <span class="num">${won(BOARD.nano.price)}</span>원과
+       배터리 <span class="num">${won(BOARD.battery.price)}</span>원이 추가로 붙습니다.`;
   }
 
   $('#groups').addEventListener('input', () => {
     $('#groupsOut').textContent = $('#groups').value + '모둠';
-    render();
+    total();
   });
   $('#q').addEventListener('input', render);
   $('#coreOnly').addEventListener('change', render);
@@ -357,17 +376,52 @@ const won = n => n.toLocaleString('ko-KR');
   });
 })();
 
-/* ══ 7. 차례 표시 ════════════════════════════════════════ */
+/* ══ 7. 탭 ══════════════════════════════════════════════ */
 (() => {
-  const links = $$('.topbar nav a');
-  const secs = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
-  if (!secs.length || !('IntersectionObserver' in window)) return;
-  const io = new IntersectionObserver(es => {
-    es.forEach(e => {
-      if (!e.isIntersecting) return;
-      links.forEach(a => a.setAttribute('aria-current',
-        String(a.getAttribute('href') === '#' + e.target.id)));
+  const tabs = $$('[role="tab"]');
+  if (!tabs.length) return;
+  const panelOf = t => document.getElementById(t.getAttribute('aria-controls'));
+
+  function show(tab, { focus = false, scroll = true } = {}) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      panelOf(t).hidden = !on;
     });
-  }, { rootMargin: '-52px 0px -70% 0px' });
-  secs.forEach(s => io.observe(s));
+    const id = tab.getAttribute('aria-controls');
+    history.replaceState(null, '', '#' + id);
+    if (focus) tab.focus();
+    if (scroll) {
+      const top = panelOf(tab).getBoundingClientRect().top + window.scrollY
+                - ($('.topbar').offsetHeight || 52);
+      window.scrollTo({ top: Math.max(0, top),
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => show(t)));
+
+  // ← → Home End 로도 옮겨 다닐 수 있게
+  $('[role="tablist"]').addEventListener('keydown', e => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    const to = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: tabs.length - 1 }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    show(tabs[(to + tabs.length) % tabs.length], { focus: true, scroll: false });
+  });
+
+  // 히어로 버튼과 본문 안의 절 링크
+  $$('[data-tab]').forEach(b => b.addEventListener('click', () =>
+    show(document.getElementById('tab-' + b.dataset.tab))));
+
+  // 주소에 #가격 같은 조각이 있으면 그 탭으로 엽니다
+  const first = tabs.find(t => '#' + t.getAttribute('aria-controls') === location.hash);
+  if (first) show(first, { scroll: false });
+
+  addEventListener('hashchange', () => {
+    const t = tabs.find(x => '#' + x.getAttribute('aria-controls') === location.hash);
+    if (t && t.getAttribute('aria-selected') !== 'true') show(t);
+  });
 })();
