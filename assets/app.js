@@ -214,7 +214,11 @@ const won = n => n.toLocaleString('ko-KR');
     body.textContent = '';
 
     rows().forEach(([key, name, ...p]) => {
-      const min = Math.min(...p.filter(x => x != null));
+      /* 최저가 표시는 「무선끼리 견줬을 때 사이언스큐브가 아닌 곳」에만 붙입니다.
+         이지메이커 유선은 취급 항목 전부에서 최저가라 행마다 표시해 봐야 알려 주는 게 없습니다. */
+      const wire = [1, 2, 3].filter(i => p[i] != null);
+      const wMin = wire.length > 1 ? Math.min(...wire.map(i => p[i])) : null;
+      const mark = wMin != null && p[1] !== wMin ? wire.filter(i => p[i] === wMin) : [];
       const tr = document.createElement('tr');
 
       const tdPick = document.createElement('td');
@@ -249,10 +253,11 @@ const won = n => n.toLocaleString('ko-KR');
       tdQty.appendChild(num);
       tr.appendChild(tdQty);
 
-      p.forEach(v => {
+      p.forEach((v, i) => {
         const td = document.createElement('td');
-        td.className = 'p' + (v == null ? ' na' : v === min ? ' low' : '');
+        td.className = 'p' + (v == null ? ' na' : mark.includes(i) ? ' low' : '');
         td.textContent = v == null ? '—' : won(v);
+        if (mark.includes(i)) td.title = '무선 중에서는 여기가 가장 쌉니다';
         tr.appendChild(td);
       });
 

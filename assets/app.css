@@ -260,7 +260,7 @@ tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
 
 .ptable td.p { text-align: right; white-space: nowrap; font-family: var(--mo);
                font-variant-numeric: tabular-nums; font-size: 13.5px; }
-.ptable td.p.low { font-weight: 600; box-shadow: inset 3px 0 0 var(--signal); }
+.ptable td.p.low { font-weight: 600; color: var(--signal-tx); }
 .ptable td.p.na { color: var(--rule); }
 .ptable tbody tr:hover td, .ptable tbody tr:hover th { background: var(--paper); }
 .ptable .pick { width: 34px; }
